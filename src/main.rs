@@ -25,13 +25,14 @@ fn main() {
     let window = Rc::new(RefCell::new(window));
     let ref mut gl = GlGraphics::new(opengl);
 
-    let mut player = Bot::new(150.0, 150.0);
+    let mut player = Bot::new(300.0, 300.0);
     player.owner = Owner::Player;
     
     let mut bots = vec![player,
                         Bot::new(230.0, 200.0),
-                        Bot::new(330.0, 200.0),
+                        Bot::new(330.0, 500.0),
                         Bot::new(130.0, 300.0),
+                        Bot::new(530.0, 400.0),
                         Bot::new(430.0, 200.0)];
 
     for e in window.clone().events() {

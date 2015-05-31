@@ -8,12 +8,23 @@ pub enum Owner {
     Enemy
 }
 
-pub struct Bot {
-    //hp: f32,
+struct MovingObject {
     x: f64,
     y: f64,
     speed: f64,
     angle: f64,
+}
+
+impl MovingObject {
+    fn tick(&mut self, dt: f64) {
+        self.x += self.angle.cos() * self.speed * dt;
+        self.y += self.angle.sin() * self.speed * dt;
+    }
+}
+
+pub struct Bot {
+    //hp: f32,
+    moving: MovingObject,
     pub owner: Owner,
     pub turn_left: bool,
     pub turn_right: bool,
@@ -28,10 +39,12 @@ impl Bot {
         let mut rng = rand::thread_rng();
         Bot {
             //hp: 100.0,
-            x: x,
-            y: y,
-            speed: 10.0,
-            angle: rng.gen::<f64>() * 3.14 * 2.0,
+            moving: MovingObject {
+                x: x,
+                y: y,
+                speed: 10.0,
+                angle: rng.gen::<f64>() * 3.14 * 2.0,
+            },
             owner: Owner::Enemy,
             turn_left: false,
             turn_right: false,
@@ -39,20 +52,19 @@ impl Bot {
     }
 
     pub fn tick(&mut self, dt: f64) {
-        self.angle += dt * match (self.turn_left, self.turn_right) {
+        self.moving.angle += dt * match (self.turn_left, self.turn_right) {
             (true, true) => 0.0,
             (true, false) => -5.0,
             (false, true) => 5.0,
             _ => 0.0
         };
-        self.x += self.angle.cos() * self.speed * dt;
-        self.y += self.angle.sin() * self.speed * dt;
+        self.moving.tick(dt);
     }
     
     pub fn draw<G: Graphics>(&self, c: &Context, g: &mut G) {
         use graphics::math::{translate, multiply, rotate_radians};
-        let translation_matrix = translate([self.x, self.y]);
-        let rotation_matrix = rotate_radians(self.angle);
+        let translation_matrix = translate([self.moving.x, self.moving.y]);
+        let rotation_matrix = rotate_radians(self.moving.angle);
         let transform = multiply(multiply(c.transform, translation_matrix), rotation_matrix);
         let col = match self.owner {
             Owner::Player => [0.0, 0.2, 0.4, 1.0],
