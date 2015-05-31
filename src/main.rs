@@ -36,6 +36,7 @@ fn main() {
                         Bot::new(130.0, 300.0),
                         Bot::new(530.0, 400.0),
                         Bot::new(430.0, 200.0)];
+    bots[2].hp = 0.0;
 
     for e in window.clone().events() {
         
@@ -55,7 +56,7 @@ fn main() {
             match key {
                 Key::A => bots[0].turn_left = true,
                 Key::D => bots[0].turn_right = true,
-                Key::Space => bots[0].shoot(&mut shots),
+                Key::Space => shots.push(bots[0].shoot()),
                 _ => ()
             }
         };
