@@ -17,6 +17,7 @@ use glutin_window::GlutinWindow as Window;
 mod bot;
 use bot::Bot;
 use bot::Owner;
+use bot::Shot;
 
 fn main() {
     let opengl = OpenGL::_3_2;
@@ -27,7 +28,8 @@ fn main() {
 
     let mut player = Bot::new(300.0, 300.0);
     player.owner = Owner::Player;
-    
+
+    let mut shots : Vec<Shot> = vec![];
     let mut bots = vec![player,
                         Bot::new(230.0, 200.0),
                         Bot::new(330.0, 500.0),
@@ -40,6 +42,9 @@ fn main() {
         if let Some(args) = e.render_args() {
             gl.draw(args.viewport(), |context, graphics| {
                 graphics::clear([1.0, 0.8, 0.7, 1.0], graphics);
+                for shot in &shots {
+                    shot.draw(&context, graphics);
+                }
                 for bot in &bots {
                     bot.draw(&context, graphics);
                 }
@@ -50,6 +55,7 @@ fn main() {
             match key {
                 Key::A => bots[0].turn_left = true,
                 Key::D => bots[0].turn_right = true,
+                Key::Space => bots[0].shoot(&mut shots),
                 _ => ()
             }
         };
@@ -65,6 +71,9 @@ fn main() {
         e.update(|args| {
             for bot in &mut bots {
                 bot.tick(args.dt);
+            }
+            for shot in &mut shots {
+                shot.tick(args.dt);
             }
         });
     }

@@ -30,9 +30,9 @@ pub struct Bot {
     pub turn_right: bool,
 }
 
-// struct Shot {
-//     owner: Owner
-// }
+pub struct Shot {
+    moving: MovingObject
+}
 
 impl Bot {
     pub fn new(x: f64, y: f64) -> Bot {
@@ -49,6 +49,10 @@ impl Bot {
             turn_left: false,
             turn_right: false,
         }
+    }
+
+    pub fn shoot(&self, shots: &mut Vec<Shot>) {
+        shots.push(Shot::new(self.moving.x, self.moving.y, self.moving.angle));
     }
 
     pub fn tick(&mut self, dt: f64) {
@@ -78,6 +82,32 @@ impl Bot {
         };
         let canon = graphics::Rectangle::new(canon_col);
         canon.draw([-5.0, -5.0, 30.0, 10.0], &c.draw_state, transform, g);
+    }
+}
+
+impl Shot {
+    pub fn new(x: f64, y: f64, angle: f64) -> Shot {
+        Shot {
+            moving: MovingObject {
+                x: x,
+                y: y,
+                speed: 150.0,
+                angle: angle
+            },
+        }
+    }
+
+    pub fn tick(&mut self, dt: f64) {
+        self.moving.tick(dt);
+    }
+    
+    pub fn draw<G: Graphics>(&self, c: &Context, g: &mut G) {
+        use graphics::math::{translate, multiply, rotate_radians};
+        let translation_matrix = translate([self.moving.x, self.moving.y]);
+        let rotation_matrix = rotate_radians(self.moving.angle);
+        let transform = multiply(multiply(c.transform, translation_matrix), rotation_matrix);
+        let rect = graphics::Rectangle::new([1.0, 0.0, 0.0, 1.0]);
+        rect.draw([-3.0, -3.0, 6.0, 6.0], &c.draw_state, transform, g);
     }
 }
 
